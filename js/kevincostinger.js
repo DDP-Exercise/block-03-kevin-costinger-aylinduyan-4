@@ -39,13 +39,77 @@
  *     the scope of his variables and of course, makes use of
  *     event delegation, to keep his event listeners tidied up!
  *
- *     You - 2026-03-25
+ *     Aylin Duyan  - 2026-03-25
  *******************************************************/
+const form = document.querySelector("form");
+const dateInput = document.getElementById("date");
+const amountInput = document.getElementById("amount");
+const expenseInput = document.getElementById("expense");
+form.addEventListener("submit", submitForm);
+
+function addExpense(date, amount, expense) {
+    const row = document.createElement("tr");
+    const tdDate = document.createElement("td");
+    tdDate.textContent = date;
+    const tdAmount = document.createElement("td");
+    tdAmount.textContent = formatEuro(amount);
+    const tdExpense = document.createElement("td");
+    tdExpense.textContent = expense;
+    const tdDelete = document.createElement("td");
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "X";
+    deleteButton.classList.add("delete");
+    deleteButton.setAttribute("data-amount", amount);
+    tdDelete.append(deleteButton);
+    row.append(tdDate);
+    row.append(tdAmount);
+    row.append(tdExpense);
+    row.append(tdDelete);
+    document.querySelector("#expenses tbody").append(row);
+
+    sumExpenses += amount;
+    updateSum();
+}
+function updateSum() {
+    if (sumExpenses < 0){
+        sumExpenses = 0;
+    }
+    document.getElementById("expenseSum").textContent = formatEuro(sumExpenses);
+}
+document.querySelector("#expenses tbody").addEventListener("click", function(e){
+    if (e.target.classList.contains("delete")) {
+        let amount = parseFloat(e.target.getAttribute("data-amount"));
+        sumExpenses -= amount;
+        updateSum();
+        e.target.closest("tr").remove();
+    }
+});
+
 let sumExpenses = 0; //Use this variable to keep the sum up to date.
 
 function submitForm(e){
     //TODO: Prevent the default behavior of the submit button.
     //TODO: Validate the form. If everything is fine, add the expense to the tracker and reset the form.
+
+    e.preventDefault();
+    let dateValue = dateInput.value;
+    let amountValue = parseFloat(amountInput.value);
+    let expenseValue = expenseInput.value.trim();
+
+    if (isEmpty(dateValue)){
+        alert("Date can't be empty");
+        return;
+    }
+    if (isNaN(amountValue) || amountValue < 0.01){
+        alert("Amount must be at least 0.01.");
+        return;
+    }
+    if (expenseValue.length < 3) {
+        alert("Expense must be at least 3 characters long.");
+        return;
+    }
+    addExpense(dateValue, amountValue, expenseValue);
+    document.querySelector("form").reset();
 }
 
 
